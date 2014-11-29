@@ -25,8 +25,11 @@ def pollAccel():
     # Read the Z-acceleration value to get angle:
     val = readData(ACCEL_ZOUT_H, 2)
     accel_z = ord(val[0]) << 8 | ord(val[1])
-    # Divide by 512 (16-bit/128) to give value from 0-128:
-    accel_z = accel_z / 512
+    # If the reading is negative, it's above horizontal, so cap it:
+    if accel_z < 0:
+        accel_z = 0
+    # Divide by 256 (15-bit/128) to give value from 0-128:
+    accel_z = accel_z / 256
 
     # The direction is determined by the sign of the X-acceleration value:
     val = readData(ACCEL_XOUT_H, 2)
