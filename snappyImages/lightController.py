@@ -33,3 +33,9 @@ def enterRainbowMode():
     sendAngle = False
     print LISTEN,RAINBOW_MODE,
     sendAngle = True
+
+def enterTeamMode(red1, green1, blue1, red2, green2, blue2):
+    global sendAngle
+    sendAngle = False
+    print LISTEN,TEAM_MODE,chr(red1),chr(green1),chr(blue1),chr(red1),chr(green1),chr(blue1),
+    sendAngle = True
