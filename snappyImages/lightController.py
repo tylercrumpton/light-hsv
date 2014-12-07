@@ -6,6 +6,7 @@ LISTEN       = chr(255)
 SET_COLOR    = chr(1)
 RAINBOW_MODE = chr(2)
 TEAM_MODE    = chr(3)
+GLITTER_MODE = chr(4)
 
 def reportAngle(device, angle):
     global sendAngle
@@ -38,4 +39,10 @@ def enterTeamMode(red1, green1, blue1, red2, green2, blue2):
     global sendAngle
     sendAngle = False
     print LISTEN,TEAM_MODE,chr(red1),chr(green1),chr(blue1),chr(red1),chr(green1),chr(blue1),
+    sendAngle = True
+    
+def enterGlitterMode(red, green, blue):
+    global sendAngle
+    sendAngle = False
+    print LISTEN,GLITTER_MODE,chr(red),chr(green),chr(blue),
     sendAngle = True
