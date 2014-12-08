@@ -1,8 +1,12 @@
 from synapse.switchboard import *
 from synapse.platforms import *
 
+# Register addresses
 MPU6050_ADDRESS = 0xD0
 PWR_MGMT_1      = 0x6B
+MOT_THR         = 0x1F
+INT_PIN_CFG     = 0x37
+INT_ENABLE      = 0x38
 ACCEL_XOUT_H    = 0x3B
 ACCEL_YOUT_H    = 0x3D
 ACCEL_ZOUT_H    = 0x3F
@@ -11,6 +15,11 @@ GYRO_XOUT_H     = 0x43
 GYRO_YOUT_H     = 0x45
 GYRO_ZOUT_H     = 0x47
 
+# Masks
+MOT_EN    = 0x40 # Enable motion interrupt
+INT_LEVEL = 0x80 # Active-low INT
+INT_OPEN  = 0x40 # Open-drain INT
+
 def status():
     status = getI2cResult()
     return status
@@ -18,7 +27,12 @@ def status():
 @setHook(HOOK_STARTUP)
 def init():
     i2cInit(True)
-    writeData(PWR_MGMT_1, chr(0x00))
+    writeData(PWR_MGMT_1, chr(0x00)) # Wake up the IMU
+    writeData(MOT_THR, chr(150))  # Set the motion detection threshold
+    prev = readData(INT_ENABLE, 1)
+    writeData(INT_ENABLE, prev | MOT_EN) # Enable the motion interrupt
+    prev = readData(INT_PIN_CFG, 1)
+    writeData(INT_PIN_CFG, prev | INT_LEVEL | INT_OPEN) # Set the INT pin cfg
     
 @setHook(HOOK_100MS)
 def pollAccel():
