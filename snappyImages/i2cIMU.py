@@ -84,3 +84,8 @@ def readData(registerAddress, bytes):
     
     return retval
 
+def imuSleep():
+    ''' Puts the SNAP and IMU to sleep, waiting for motion to wake up '''
+    sleep(0, 0) # Wait for pin interrupt
+    pass
+
