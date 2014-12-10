@@ -4,6 +4,7 @@ from synapse.platforms import *
 # Register addresses
 MPU6050_ADDRESS = 0xD0
 PWR_MGMT_1      = 0x6B
+PWR_MGMT_2      = 0x6C
 MOT_THR         = 0x1F
 INT_PIN_CFG     = 0x37
 INT_ENABLE      = 0x38
@@ -16,9 +17,16 @@ GYRO_YOUT_H     = 0x45
 GYRO_ZOUT_H     = 0x47
 
 # Masks
-MOT_EN    = 0x40 # Enable motion interrupt
-INT_LEVEL = 0x80 # Active-low INT
-INT_OPEN  = 0x40 # Open-drain INT
+MOT_EN       = 0x40 # Enable motion interrupt
+INT_LEVEL    = 0x80 # Active-low INT
+INT_OPEN     = 0x40 # Open-drain INT
+LP_WAKE_CTRL = 0xC0 # Frequency of wake-ups in Accelerometer Only Low Power Mode.
+STBY_XA      = 0x20 # X-axis acceleromter standby
+STBY_YA      = 0x10 # Y-axis acceleromter standby
+STBY_ZA      = 0x08 # Z-axis acceleromter standby
+STBY_XG      = 0x04 # X-axis gyro standby
+STBY_YG      = 0x02 # Y-axis gyro standby
+STBY_ZG      = 0x01 # Z-axis gyro standby
 
 def status():
     status = getI2cResult()
@@ -33,6 +41,8 @@ def init():
     writeData(INT_ENABLE, prev | MOT_EN) # Enable the motion interrupt
     prev = readData(INT_PIN_CFG, 1)
     writeData(INT_PIN_CFG, prev | INT_LEVEL | INT_OPEN) # Set the INT pin cfg
+    prev = readData(PWR_MGMT_2, 1)
+    writeData(PWR_MGMT_2, prev | STBY_XG | STBY_YG| STBY_ZG) # Disable gyro
     
 @setHook(HOOK_100MS)
 def pollAccel():
