@@ -1,6 +1,9 @@
 from synapse.switchboard import *
 from synapse.platforms import *
 
+# Pins
+BUTTON_PIN = GPIO_5
+INT_PIN    = GPIO_6
 # Register addresses
 MPU6050_ADDRESS = 0xD0
 PWR_MGMT_1      = 0x6B
@@ -40,7 +43,7 @@ def init():
     prev = readData(INT_ENABLE, 1)
     writeData(INT_ENABLE, prev | MOT_EN) # Enable the motion interrupt
     prev = readData(INT_PIN_CFG, 1)
-    writeData(INT_PIN_CFG, prev | INT_LEVEL | INT_OPEN) # Set the INT pin cfg
+    writeData(INT_PIN_CFG, prev | INT_LEVEL | INT_OPEN) # INT is active low, open drain
     prev = readData(PWR_MGMT_2, 1)
     writeData(PWR_MGMT_2, prev | STBY_XG | STBY_YG| STBY_ZG) # Disable gyro
     
@@ -98,4 +101,15 @@ def imuSleep():
     ''' Puts the SNAP and IMU to sleep, waiting for motion to wake up '''
     sleep(0, 0) # Wait for pin interrupt
     pass
+
+@setHook(HOOK_GPIN)
+def buttonEvent(pinNum, isSet):
+    if pinNum == BUTTON_PIN:
+        if not isSet:
+            # TODO: Wakeup the IMU here
+            pass
+    elif pinNum == INT_PIN:
+        if not isSet:
+            # TODO: Wakeup the IMU here
+            pass
 
