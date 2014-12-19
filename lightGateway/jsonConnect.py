@@ -3,19 +3,20 @@
 import json
 import socket
 import os
-import snapconnect
+from snapconnect import snap
 from binascii import unhexlify, hexlify
 
 class AddressError(Exception):
     pass
 
 class JSONConnectServer(object):
-    def __init__(self, sockfile="./snapconnect.sock"):
+    def __init__(self, sockfile="./snapconnect.sock", snap_type=snap.SERIAL_TYPE_RS232, snap_port="/dev/ttys1"):
         self.sockfile = sockfile
-        self.setupSnapConnect()
+        self.setupSnapConnect(snap_type, snap_port)
         self.setupSocket()
-    def setupSnapConnect(self):
-        pass
+    def setupSnapConnect(self, type, port):
+        self.sc = snap.Snap()
+        #self.sc.open_serial(type, port)
     def setupSocket(self):
         if os.path.exists(self.sockfile):
             os.remove(self.sockfile)
