@@ -22,6 +22,7 @@ class JSONConnectServer(object):
             os.remove(self.sockfile)
         self.s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.s.bind(self.sockfile)
+
     def startServer(self):
         self.s.listen(5)  
         while True:
@@ -35,7 +36,7 @@ class JSONConnectServer(object):
                     self.sc.poll()
     def handleData(self, data):
         try:
-            jdata = json.loads(data)
+            jdata = json.loads(data, parse_float=float, parse_int=int)
             type = jdata['type']
             if type == 'rpc':
                 dest_address = jdata['address']
@@ -46,8 +47,14 @@ class JSONConnectServer(object):
                 dest_function = jdata['function']
                 function_args = jdata.get('args', None)
                 print "Calling {0}({1}) on node {2}".format(dest_function, function_args, hexlify(dest_address))
+                self.sc.rpc(dest_address, dest_function, *function_args)
             elif type == 'mcastrpc':
-                pass
+                mcast_group = jdata.get('group', 1)
+                mcast_ttl = jdata.get('ttl', 5)
+                dest_function = jdata['function']
+                function_args = jdata.get('args', None)
+                print "Broadcasting {0}({1}) with TTL={2} on group {3}".format(dest_function, function_args, mcast_ttl, mcast_group)
+                self.sc.mcast_rpc(mcast_group, mcast_ttl, dest_function, *function_args)
             elif type == 'hello':
                 pass
             elif type == 'bye':

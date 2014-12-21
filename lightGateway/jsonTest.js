@@ -12,6 +12,7 @@ client
     log.info('client', 'client connected');
     client.write('{"type":"connect"}');
     client.write('{"type":"rpc", "address":"545556", "function":"changeLights", "args":[1, 2]}');
+    client.write('{"type":"mcastrpc", "group":2, "ttl":10, "function":"reportAngle", "args":[24]}');
   })
   .on('data', function (data) {
     log.info('client', 'Data: %s', data.toString());
