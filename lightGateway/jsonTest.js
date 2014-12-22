@@ -1,27 +1,16 @@
 // Test node.js file for using the jsonConnect socket.
 
-var net = require('net')
-  , log = require('npmlog')
-  , sockfile = './snapconnect.sock'
-  ;
+var zerorpc = require("zerorpc");
 
-var client = net.connect( { path: sockfile });
+var client = new zerorpc.Client();
+client.connect("tcp://127.0.0.1:4242");
 
-client
-  .on('connect', function () {
-    log.info('client', 'client connected');
-    client.write('{"type":"connect"}');
-    client.write('{"type":"rpc", "address":"545556", "function":"changeLights", "args":[1, 2]}');
-    client.write('{"type":"mcastrpc", "group":2, "ttl":10, "function":"reportAngle", "args":[24]}');
-  })
-  .on('data', function (data) {
-    log.info('client', 'Data: %s', data.toString());
-    client.end(); 
-  })
-  .on('error', function (err) {
-    log.error('client', err);
-  })
-  .on('end', function () {
-    log.info('client', 'client disconnected');
-  })
-  ;
+client.invoke("hello", "World!", function(error, res, more) {
+    console.log(res);
+    client.invoke("rpc", "123456", "test_function", "arg1", "arg2", function(error, res, more) {
+        console.log(res);
+        client.invoke("mcastrpc", "1", "5", "mcast_func", "arg3", "arg4", function(error, res, more) {
+            console.log(res);
+        });  
+    });     
+});
