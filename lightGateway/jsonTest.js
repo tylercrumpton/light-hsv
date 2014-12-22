@@ -11,6 +11,9 @@ client.invoke("hello", "World!", function(error, res, more) {
         console.log(res);
         client.invoke("mcastrpc", "1", "5", "mcast_func", "arg3", "arg4", function(error, res, more) {
             console.log(res);
+            client.invoke("mcastrpc", "1", "5", "mcast_func", function(error, res, more) {
+                console.log(res);
+            });  
         });  
     });     
 });
