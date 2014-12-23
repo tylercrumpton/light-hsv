@@ -16,10 +16,10 @@ class SnapRpc(object):
             address = unhexlify(address)
         else:
             return "Error in address {2}".format(address)
-        self.sc.rpc(address, function, *args)
+        self.sc.scheduler.schedule(0, self.sc.rpc, address, function, *args)
         return "Calling {0}({1}) on node {2}".format(function, args, hexlify(address))
     def mcastrpc(self, group, ttl, function, *args):
-        self.sc.mcast_rpc(int(group), int(ttl), function, *args)
+        self.sc.scheduler.schedule(0, self.sc.mcast_rpc, int(group), int(ttl), function, *args)
         return "Broadcasting {0}({1}) on mcast group {2} with ttl={3}".format(function, args, group, ttl)
 
 class JSONConnectServer(object):
