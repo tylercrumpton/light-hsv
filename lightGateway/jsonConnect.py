@@ -62,8 +62,7 @@ class JSONConnectServer(object):
         self.sc.add_rpc_func(function_name, lambda_func)
     def sendZeroRpc(self, function_name, *args):
         print "Calling zeroRpc {0}({1})".format(function_name, args)
-        #self.zero_client.function_name(*args)
-        self.zero_client.registered_func(*args)
+        getattr(self.zero_client, function_name)(*args)
 
 if __name__ == "__main__":
     server = JSONConnectServer()
