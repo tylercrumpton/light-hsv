@@ -23,9 +23,6 @@ client.invoke("rpc", "123456", "test_function", "arg1", "arg2", function(error, 
                 console.log(res);
                 client.invoke("list", function(error, res, more) {
                     console.log(res);
-                    client.invoke("test", function(error, res, more) {
-                        console.log(res);
-                    });  
                 });  
             });  
             

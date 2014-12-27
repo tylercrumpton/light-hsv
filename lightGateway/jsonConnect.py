@@ -28,9 +28,6 @@ class SnapRpc(object):
         return "Registered {0}()".format(function)
     def list(self):
         return self.json_con_server.func_dict.keys()
-    def test(self):
-        self.json_con_server.sc.scheduler.schedule(5, self.json_con_server.func_dict["registered_func"], 1,2)
-        return "Trying test:"
 
 
         
