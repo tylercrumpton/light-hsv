@@ -32,8 +32,10 @@ class SnapRpc(object):
 
         
 class JSONConnectServer(object):
-    def __init__(self, snap_type=snap.SERIAL_TYPE_RS232, snap_port="/dev/ttys1"):
+    def __init__(self, snap_type=snap.SERIAL_TYPE_RS232, snap_port="/dev/ttys1", bind_addr="tcp://0.0.0.0:4242", client_addr="tcp://127.0.0.1:2424"):
         self.func_dict = {}
+        self.bind_addr = bind_addr
+        self.client_addr = client_addr
         self.setupSnapConnect(snap_type, snap_port)
         self.setupZeroRpcServer()
         self.setupZeroRpcClient()
@@ -42,10 +44,10 @@ class JSONConnectServer(object):
         #self.sc.open_serial(type, port)
     def setupZeroRpcServer(self):
         self.zero_server = zerorpc.Server(SnapRpc(self))
-        self.zero_server.bind("tcp://0.0.0.0:4242")
+        self.zero_server.bind(self.bind_addr)
     def setupZeroRpcClient(self):
         self.zero_client = zerorpc.Client()
-        self.zero_client.connect("tcp://127.0.0.1:2424")
+        self.zero_client.connect(self.client_addr)
     def loopSnapConnect(self):
         while(1):
             self.sc.poll()
