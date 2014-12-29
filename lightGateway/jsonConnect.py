@@ -18,16 +18,23 @@ class SnapRpc(object):
             address = unhexlify(address)
         else:
             return "Error in address {2}".format(address)
-        self.json_con_server.sc.scheduler.schedule(0, self.json_con_server.sc.rpc, address, function, *args)
+        self.json_con_server.sc.scheduler.schedule(0, self._wrap_rpc, address, function, *args)
         return "Calling {0}({1}) on node {2}".format(function, args, hexlify(address))
     def mcastrpc(self, group, ttl, function, *args):
-        self.json_con_server.sc.scheduler.schedule(0, self.json_con_server.sc.mcast_rpc, int(group), int(ttl), function, *args)
+        # TODO: check for ints on group and ttl
+        self.json_con_server.sc.scheduler.schedule(0, self._wrap_mcastrpc, group, ttl, function, *args)
         return "Broadcasting {0}({1}) on mcast group {2} with ttl={3}".format(function, args, group, ttl)
     def register(self, function):
-        self.json_con_server.sc.scheduler.schedule(0, self.json_con_server.registerFunction, function)
+        self.json_con_server.sc.scheduler.schedule(0, self._wrap_register, function)
         return "Registered {0}()".format(function)
     def list(self):
         return self.json_con_server.func_dict.keys()
+    def _wrap_rpc(self, address, function, *args):
+        self.json_con_server.sc.rpc(address, function, *args)
+    def _wrap_mcastrpc(self, group, ttl, function, *args):
+        self.json_con_server.sc.mcast_rpc(group, ttl, function, *args)
+    def _wrap_register(self, function):
+        self.json_con_server.registerFunction(function)
 
 
         

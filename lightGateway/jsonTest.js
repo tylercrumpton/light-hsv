@@ -15,9 +15,9 @@ client.connect("tcp://127.0.0.1:4242");
 
 client.invoke("rpc", "123456", "test_function", "arg1", "arg2", function(error, res, more) {
     console.log(res);
-    client.invoke("mcastrpc", "1", "5", "mcast_func", "arg3", "arg4", function(error, res, more) {
+    client.invoke("mcastrpc", 1, 5, "mcast_func", "arg3", "arg4", function(error, res, more) {
         console.log(res);
-        client.invoke("mcastrpc", "1", "5", "mcast_func", function(error, res, more) {
+        client.invoke("mcastrpc", 1, 5, "mcast_func", function(error, res, more) {
             console.log(res);
             client.invoke("register", "registered_func", function(error, res, more) {
                 console.log(res);
