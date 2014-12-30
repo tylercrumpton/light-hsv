@@ -21,7 +21,11 @@ class SnapRpc(object):
         self.json_con_server.sc.scheduler.schedule(0, self._wrap_rpc, address, function, *args)
         return "Calling {0}({1}) on node {2}".format(function, args, hexlify(address))
     def mcastrpc(self, group, ttl, function, *args):
-        # TODO: check for ints on group and ttl
+        try:
+            group = int(group)
+            ttl = int(ttl)
+        except:
+            return "Group and TTL must be integers"
         self.json_con_server.sc.scheduler.schedule(0, self._wrap_mcastrpc, group, ttl, function, *args)
         return "Broadcasting {0}({1}) on mcast group {2} with ttl={3}".format(function, args, group, ttl)
     def register(self, function):
