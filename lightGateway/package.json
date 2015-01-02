@@ -1,0 +1,8 @@
+{
+  "name": "snap-connect-zero",
+  "version": "0.0.1",
+  "author": "Tyler Crumpton",
+  "dependencies": {
+    "zerorpc":"*"
+  }
+}
