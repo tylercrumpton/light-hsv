@@ -1,24 +1,22 @@
-''' JSON Socket wrapper for Synapse SNAP Connect '''
+''' ZeroRPC wrapper for Synapse SNAP Connect '''
 
-import os
 import zerorpc
 from snapconnect import snap
 from binascii import unhexlify, hexlify
-from time import sleep
 import logging
 import gevent
 
 logging.basicConfig()
 
 class SnapRpc(object):
-    def __init__(self, json_con_server):
-        self.json_con_server = json_con_server
+    def __init__(self, snapconn_server):
+        self.snapconn_server = snapconn_server
     def rpc(self, address, function, *args):
         if len(address) == 6:
             address = unhexlify(address)
         else:
             return "Error in address {2}".format(address)
-        self.json_con_server.sc.scheduler.schedule(0, self._wrap_rpc, address, function, *args)
+        self.snapconn_server.sc.scheduler.schedule(0, self._wrap_rpc, address, function, *args)
         return "Calling {0}({1}) on node {2}".format(function, args, hexlify(address))
     def mcastrpc(self, group, ttl, function, *args):
         try:
@@ -26,23 +24,23 @@ class SnapRpc(object):
             ttl = int(ttl)
         except:
             return "Group and TTL must be integers"
-        self.json_con_server.sc.scheduler.schedule(0, self._wrap_mcastrpc, group, ttl, function, *args)
+        self.snapconn_server.sc.scheduler.schedule(0, self._wrap_mcastrpc, group, ttl, function, *args)
         return "Broadcasting {0}({1}) on mcast group {2} with ttl={3}".format(function, args, group, ttl)
     def register(self, function):
-        self.json_con_server.sc.scheduler.schedule(0, self._wrap_register, function)
+        self.snapconn_server.sc.scheduler.schedule(0, self._wrap_register, function)
         return "Registered {0}()".format(function)
     def list(self):
-        return self.json_con_server.func_dict.keys()
+        return self.snapconn_server.func_dict.keys()
     def _wrap_rpc(self, address, function, *args):
-        self.json_con_server.sc.rpc(address, function, *args)
+        self.snapconn_server.sc.rpc(address, function, *args)
     def _wrap_mcastrpc(self, group, ttl, function, *args):
-        self.json_con_server.sc.mcast_rpc(group, ttl, function, *args)
+        self.snapconn_server.sc.mcast_rpc(group, ttl, function, *args)
     def _wrap_register(self, function):
-        self.json_con_server.registerFunction(function)
+        self.snapconn_server.registerFunction(function)
 
 
         
-class JSONConnectServer(object):
+class ZeroRPCSnapConnect(object):
     def __init__(self, snap_type=snap.SERIAL_TYPE_RS232, snap_port="/dev/ttys1", bind_addr="tcp://0.0.0.0:4242", client_addr="tcp://127.0.0.1:2424"):
         self.func_dict = {}
         self.bind_addr = bind_addr
@@ -52,7 +50,7 @@ class JSONConnectServer(object):
         self.setupZeroRpcClient()
     def setupSnapConnect(self, type, port):
         self.sc = snap.Snap()
-        #self.sc.open_serial(type, port)
+        self.sc.open_serial(type, port)
     def setupZeroRpcServer(self):
         self.zero_server = zerorpc.Server(SnapRpc(self))
         self.zero_server.bind(self.bind_addr)
@@ -75,5 +73,5 @@ class JSONConnectServer(object):
         getattr(self.zero_client, function_name)(*args)
 
 if __name__ == "__main__":
-    server = JSONConnectServer()
+    server = ZeroRPCSnapConnect(snap_port="/dev/ttyUSB0")
     server.start()
