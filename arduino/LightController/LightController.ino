@@ -8,7 +8,11 @@ uint8_t red =0;
 uint8_t green=255;
 uint8_t blue =0;
 
-int state = 0;
+typedef enum {
+    NORMAL_STATE,
+    COMMAND_STATE
+} state_t;
+state_t state = NORMAL_STATE;
 
 int jump=0;
 uint8_t degreeold=0;
@@ -43,14 +47,14 @@ void setup()
 
 void loop() {
 
-    if(Serial.available() && state==0) 
+    if(Serial.available() && state==NORMAL_STATE) 
     {
         uint8_t degree  = Serial.read(); //incoming serial stream
         if (degree== 255)
         {
-            state = 1;
+            state = COMMAND_STATE;
         }
-        if(state==0){
+        if(state==NORMAL_STATE){
             degree=(degree/2);
             rawData1 = degree;                       // read sensor 1
             degree = digitalSmooth(rawData1, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
@@ -73,14 +77,14 @@ void loop() {
             degreeold=degree;
         }
         
-        if(state==1)
+        if(state==COMMAND_STATE)
         {
             // if(Serial.available()) 
             { 
                 while(!Serial.available())
                 {
                 }
-                Serial.print("Entering state 1:");
+                Serial.print("Entering command state:");
 
                 uint8_t infeed  = Serial.read(); //incoming serial stream
                 Serial.println(infeed);
@@ -100,9 +104,9 @@ void loop() {
                     {
                     }
                     blue  = Serial.read();
-                    state=0;
+                    state=NORMAL_STATE;
                 }
-                if(infeed==2)
+                else if(infeed==2)
                 {
                     Serial.println("starting rainbow");
                     rainbow(10);
@@ -110,13 +114,13 @@ void loop() {
                     Serial.flush();
                     strip.show();
                     strip2.show();
-                    state=0;
+                    state=NORMAL_STATE;
                 }
                 else
                 {
-                    Serial.print("Returning to state 0 value:");
+                    Serial.print("Returning to normal state, value:");
                     Serial.println(infeed);
-                    state=0;
+                    state=NORMAL_STATE;
                 }
             }
         }
