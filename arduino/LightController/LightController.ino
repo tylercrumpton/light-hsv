@@ -26,8 +26,7 @@ int rawData1, smoothData1;  // variables for sensor1 data
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(120, PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(120, PIN2, NEO_GRB + NEO_KHZ800);
 
-void setup()
-{
+void setup() {
     Serial.begin(9600); //setup Serial
     // Serial.setTimeout(10);
 
@@ -46,30 +45,26 @@ void setup()
 }
 
 void loop() {
-
-    if(Serial.available() && state==NORMAL_STATE) 
-    {
+    if(Serial.available() && state==NORMAL_STATE) {
         uint8_t degree  = Serial.read(); //incoming serial stream
-        if (degree== 255)
-        {
+        if (degree== 255) {
             state = COMMAND_STATE;
         }
-        if(state==NORMAL_STATE){
+        if(state==NORMAL_STATE) {
             degree=(degree/2);
             rawData1 = degree;                       // read sensor 1
             degree = digitalSmooth(rawData1, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
 
-            if(degree>degreeold){
+            if(degree>degreeold) {
                 jump= ((degree - degreeold)/10) +1;
-                for(int i= degreeold; i <= degree; i+=jump)
-                {
+                for(int i= degreeold; i <= degree; i+=jump) {
                     colorSeg(strip.Color(red,green,blue),  i, 5);
                 }
             }
             
-            if(degree<degreeold){
+            if(degree<degreeold) {
                 jump= ((degreeold -degree)/10) +1;
-                for(int i= degreeold; i >= degree; i-=jump){
+                for(int i= degreeold; i >= degree; i-=jump) {
                     colorSeg(strip.Color(red,green,blue),  i, 5);
                 }
             }
@@ -77,51 +72,44 @@ void loop() {
             degreeold=degree;
         }
         
-        if(state==COMMAND_STATE)
-        {
-            // if(Serial.available()) 
-            { 
-                while(!Serial.available())
-                {
+        if(state==COMMAND_STATE) {
+            while(!Serial.available()) {
+                // Spin here while we wait for more bytes
+            }
+            Serial.print("Entering command state:");
+    
+            uint8_t infeed  = Serial.read(); //incoming serial stream
+            Serial.println(infeed);
+            
+            if (infeed== 1) {
+                Serial.println(" listening for RGB");
+                while(!Serial.available()) {
+                    // Spin here while we wait for more bytes
                 }
-                Serial.print("Entering command state:");
-
-                uint8_t infeed  = Serial.read(); //incoming serial stream
+                red  = Serial.read();
+                while(!Serial.available()) {
+                    // Spin here while we wait for more bytes
+                }
+                green  = Serial.read();
+                while(!Serial.available()) {
+                    // Spin here while we wait for more bytes
+                }
+                blue  = Serial.read();
+                state=NORMAL_STATE;
+            }
+            else if(infeed==2) {
+                Serial.println("starting rainbow");
+                rainbow(10);
+                turnoff();
+                Serial.flush();
+                strip.show();
+                strip2.show();
+                state=NORMAL_STATE;
+            }
+            else {
+                Serial.print("Returning to normal state, value:");
                 Serial.println(infeed);
-                
-                if (infeed== 1)
-                {
-                    Serial.println(" listening for RGB");
-                    while(!Serial.available())
-                    {
-                    }
-                    red  = Serial.read();
-                    while(!Serial.available())
-                    {
-                    }
-                    green  = Serial.read();
-                    while(!Serial.available())
-                    {
-                    }
-                    blue  = Serial.read();
-                    state=NORMAL_STATE;
-                }
-                else if(infeed==2)
-                {
-                    Serial.println("starting rainbow");
-                    rainbow(10);
-                    turnoff();
-                    Serial.flush();
-                    strip.show();
-                    strip2.show();
-                    state=NORMAL_STATE;
-                }
-                else
-                {
-                    Serial.print("Returning to normal state, value:");
-                    Serial.println(infeed);
-                    state=NORMAL_STATE;
-                }
+                state=NORMAL_STATE;
             }
         }
     }
@@ -174,7 +162,6 @@ int digitalSmooth(int rawIn, int *sensSmoothArray)
 }
 
 void turnoff() {
-
     for(uint16_t i=0; i<120; i++) {
         strip.setPixelColor(i, strip.Color(0,0,0));
         strip2.setPixelColor(i, strip.Color(0,0,0));
