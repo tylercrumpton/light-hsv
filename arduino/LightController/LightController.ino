@@ -14,6 +14,11 @@ typedef enum {
 } state_t;
 state_t state = NORMAL_STATE;
 
+const uint8_t SET_LIGHT_MODE = 0x01;
+const uint8_t RAINBOW_MODE   = 0x02;
+const uint8_t TEAM_MODE      = 0x03;
+const uint8_t GLITTER_MODE   = 0x04;
+
 int jump=0;
 uint8_t degreeold=0;
 uint8_t oldlocation=0; 
@@ -81,7 +86,7 @@ void loop() {
             uint8_t infeed  = Serial.read(); //incoming serial stream
             Serial.println(infeed);
             
-            if (infeed== 1) {
+            if (infeed == SET_LIGHT_MODE) {
                 Serial.println(" listening for RGB");
                 while(!Serial.available()) {
                     // Spin here while we wait for more bytes
@@ -97,7 +102,7 @@ void loop() {
                 blue  = Serial.read();
                 state=NORMAL_STATE;
             }
-            else if(infeed==2) {
+            else if(infeed == RAINBOW_MODE) {
                 Serial.println("starting rainbow");
                 rainbow(10);
                 turnoff();
@@ -105,6 +110,12 @@ void loop() {
                 strip.show();
                 strip2.show();
                 state=NORMAL_STATE;
+            }
+            else if(infeed == TEAM_MODE) {
+                // TODO: Add Team Mode    
+            }
+            else if(infeed == GLITTER_MODE) {
+                // TODO: Add Glitter Mode
             }
             else {
                 Serial.print("Returning to normal state, value:");
