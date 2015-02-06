@@ -1,0 +1,17 @@
+{
+  "name": "node_twetter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "twitter": "^0.2.12",
+    "zerorpc": "^0.9.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
