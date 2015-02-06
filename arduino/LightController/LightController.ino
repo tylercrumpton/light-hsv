@@ -1,5 +1,5 @@
 #include <Adafruit_NeoPixel.h>
-
+#include <SoftwareSerial.h>
 
 #define PIN 5
 #define PIN2 6
@@ -31,8 +31,11 @@ int rawData1, smoothData1;  // variables for sensor1 data
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(120, PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(120, PIN2, NEO_GRB + NEO_KHZ800);
 
+SoftwareSerial softserial(A4, A3);
+
 void setup() {
-    Serial.begin(9600); //setup Serial
+    softserial.begin(9600); //setup Serial
+    Serial.begin(9600);
     // Serial.setTimeout(10);
 
     //Setup Strip 1
@@ -50,8 +53,8 @@ void setup() {
 }
 
 void loop() {
-    if(Serial.available() && state==NORMAL_STATE) {
-        uint8_t degree  = Serial.read(); //incoming serial stream
+    if(softserial.available() && state==NORMAL_STATE) {
+        uint8_t degree  = softserial.read(); //incoming serial stream
         if (degree== 255) {
             state = COMMAND_STATE;
         }
@@ -78,7 +81,7 @@ void loop() {
         }
         
         if(state==COMMAND_STATE) {
-            while(!Serial.available()) {
+            while(!softserial.available()) {
                 // Spin here while we wait for more bytes
             }
             Serial.print("Entering command state:");
@@ -88,25 +91,25 @@ void loop() {
             
             if (infeed == SET_LIGHT_MODE) {
                 Serial.println(" listening for RGB");
-                while(!Serial.available()) {
+                while(!softserial.available()) {
                     // Spin here while we wait for more bytes
                 }
-                red  = Serial.read();
-                while(!Serial.available()) {
+                red  = softserial.read();
+                while(!softserial.available()) {
                     // Spin here while we wait for more bytes
                 }
-                green  = Serial.read();
-                while(!Serial.available()) {
+                green  = softserial.read();
+                while(!softserial.available()) {
                     // Spin here while we wait for more bytes
                 }
-                blue  = Serial.read();
+                blue  = softserial.read();
                 state=NORMAL_STATE;
             }
             else if(infeed == RAINBOW_MODE) {
                 Serial.println("starting rainbow");
                 rainbow(10);
                 turnoff();
-                Serial.flush();
+                softserial.flush();
                 strip.show();
                 strip2.show();
                 state=NORMAL_STATE;
