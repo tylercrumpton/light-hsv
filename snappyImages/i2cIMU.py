@@ -31,6 +31,11 @@ STBY_XG      = 0x04 # X-axis gyro standby
 STBY_YG      = 0x02 # Y-axis gyro standby
 STBY_ZG      = 0x01 # Z-axis gyro standby
 
+# Parameters
+MIN_ACCEL = 11000
+MAX_ACCEL = 20000
+ACCEL_STEP = (MAX_ACCEL-MIN_ACCEL)/255
+
 def status():
     status = getI2cResult()
     return status
@@ -53,25 +58,16 @@ def pollAccel():
     val = readData(ACCEL_ZOUT_H, 2)
     # Note: The value is from [-32768,32767] for [-2g,2g]
     accel_z = ord(val[0]) << 8 | ord(val[1])
-    # If the reading is negative, it's above horizontal, so cap it:
-    if accel_z < 0:
-        accel_z = 0
-    # If the reading is above 1g (>16383), cap it too:
-    elif accel_z >  16383:
-        accel_z = 16383
-    # Divide by 128 (14-bit/128) to give value from 0-128:
-    accel_z = accel_z / 128
-
-    # The direction is determined by the sign of the X-acceleration value:
-    val = readData(ACCEL_XOUT_H, 2)
-    direction = ((ord(val[0]) & 0b10000000) == 0b10000000 )
+    # If the reading is less than the minimum, cap it:
+    if accel_z < MIN_ACCEL:
+        accel_z = MIN_ACCEL
+    # If the reading is above the maximum, cap it too:
+    elif accel_z >  MAX_ACCEL:
+        accel_z = MAX_ACCEL
     
-    # Calculate the angle, where horizontal-to-horizontal is 0-255:
-    if direction:
-        angle = 255 - accel_z
-    else:
-        angle = accel_z
-        
+    # Calculate the angle, where min-to-max is 0-255:
+    angle = (accel_z - MIN_ACCEL) / ACCEL_STEP
+    
     # Send out the angle:
     mcastRpc(1, 3, 'reportAngle', 'swing', angle)
     
