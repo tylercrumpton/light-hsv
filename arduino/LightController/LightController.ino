@@ -49,7 +49,8 @@ void setup() {
     strip2.setBrightness(255); //Setup global brightness
 
     // initialize serial communication with computer:
-    Serial.begin(9600);                   
+    Serial.begin(9600);      
+    Serial.println("Initialized.");    
 }
 
 void loop() {
@@ -57,6 +58,7 @@ void loop() {
         uint8_t degree  = softserial.read(); //incoming serial stream
         if (degree== 255) {
             state = COMMAND_STATE;
+            Serial.println("Received COMMAND_STATE byte.");
         }
         if(state==NORMAL_STATE) {
             degree=(degree/2);
@@ -84,41 +86,50 @@ void loop() {
             while(!softserial.available()) {
                 // Spin here while we wait for more bytes
             }
-            Serial.print("Entering command state:");
-    
-            uint8_t infeed  = Serial.read(); //incoming serial stream
-            Serial.println(infeed);
-            
+            uint8_t infeed  = softserial.read(); //incoming serial stream
             if (infeed == SET_LIGHT_MODE) {
-                Serial.println(" listening for RGB");
+                Serial.println("Received SET_LIGHT_MODE byte.");
                 while(!softserial.available()) {
                     // Spin here while we wait for more bytes
                 }
                 red  = softserial.read();
+                Serial.print("r:");
+                Serial.print(red);
                 while(!softserial.available()) {
                     // Spin here while we wait for more bytes
                 }
                 green  = softserial.read();
+                Serial.print(",g:");
+                Serial.print(green);
                 while(!softserial.available()) {
                     // Spin here while we wait for more bytes
                 }
                 blue  = softserial.read();
+                Serial.print(",b:");
+                Serial.println(blue);
                 state=NORMAL_STATE;
             }
             else if(infeed == RAINBOW_MODE) {
-                Serial.println("starting rainbow");
+                Serial.println("Received RAINBOW_MODE byte.");
                 rainbow(10);
                 turnoff();
                 softserial.flush();
                 strip.show();
                 strip2.show();
+                Serial.println("Returning to NORMAL_STATE.");
                 state=NORMAL_STATE;
             }
             else if(infeed == TEAM_MODE) {
-                // TODO: Add Team Mode    
+                // TODO: Add Team Mode
+                Serial.println("Received TEAM_MODE byte.");
+                Serial.println("Returning to NORMAL_STATE.");
+                state=NORMAL_STATE;
             }
             else if(infeed == GLITTER_MODE) {
                 // TODO: Add Glitter Mode
+                Serial.println("Received GLITTER_MODE byte.");
+                Serial.println("Returning to NORMAL_STATE.");
+                state=NORMAL_STATE;
             }
             else {
                 Serial.print("Returning to normal state, value:");
