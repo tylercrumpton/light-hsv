@@ -1,8 +1,10 @@
 #include <Adafruit_NeoPixel.h>
 #include <SoftwareSerial.h>
 
-#define PIN 5
-#define PIN2 6
+// LED Strip Parameters:
+#define LED_PIN   6
+#define LED_COUNT 300
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 uint8_t red =0;
 uint8_t green=255;
@@ -28,8 +30,9 @@ int sensSmoothArray1 [filterSamples];   // array for holding raw sensor values f
 
 int rawData1, smoothData1;  // variables for sensor1 data
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(120, PIN, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(120, PIN2, NEO_GRB + NEO_KHZ800);
+
+
+//Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(120, PIN2, NEO_GRB + NEO_KHZ800);
 
 SoftwareSerial softserial(A4, A3);
 
@@ -44,9 +47,9 @@ void setup() {
     strip.setBrightness(255); //Setup global brightness
 
     //Setup Strip 2
-    strip2.begin();
-    strip2.show(); // Initialize all pixels to 'off'
-    strip2.setBrightness(255); //Setup global brightness
+    //strip2.begin();
+    //strip2.show(); // Initialize all pixels to 'off'
+    //strip2.setBrightness(255); //Setup global brightness
 
     // initialize serial communication with computer:
     Serial.begin(9600);      
@@ -115,7 +118,7 @@ void loop() {
                 turnoff();
                 softserial.flush();
                 strip.show();
-                strip2.show();
+                //strip2.show();
                 Serial.println("Returning to NORMAL_STATE.");
                 state=NORMAL_STATE;
             }
@@ -187,9 +190,9 @@ int digitalSmooth(int rawIn, int *sensSmoothArray)
 }
 
 void turnoff() {
-    for(uint16_t i=0; i<120; i++) {
+    for(uint16_t i=0; i<LED_COUNT; i++) {
         strip.setPixelColor(i, strip.Color(0,0,0));
-        strip2.setPixelColor(i, strip.Color(0,0,0));
+        //strip2.setPixelColor(i, strip.Color(0,0,0));
     }
 }
 
@@ -198,16 +201,16 @@ void colorSeg(uint32_t color, uint8_t location, uint32_t seg) {
 
     for(int n=oldlocation; n<oldlocation+seg; n++) {
         strip.setPixelColor(n, strip.Color(0,0,0));
-        strip2.setPixelColor(n, strip.Color(0,0,0));
+        //strip2.setPixelColor(n, strip.Color(0,0,0));
     }
     for(uint16_t i=location; i<location+seg; i++) {
         strip.setPixelColor(i, color);
-        strip2.setPixelColor(i, color);
+        //strip2.setPixelColor(i, color);
     }
     strip.show();
     //for(uint16_t i=location; i<location+seg; i++) {
     //  }
-    strip2.show();
+    //strip2.show();
 
     oldlocation=location;
 }
@@ -218,10 +221,10 @@ void rainbow(uint8_t wait) {
     for(j=0; j<256; j++) {
         for(i=0; i<strip.numPixels(); i++) {
             strip.setPixelColor(i, Wheel((i+j) & 255));
-            strip2.setPixelColor(i, Wheel((i+j) & 255));
+            //strip2.setPixelColor(i, Wheel((i+j) & 255));
         }
         strip.show();
-        strip2.show();
+        //strip2.show();
         delay(wait);
     }
 }
