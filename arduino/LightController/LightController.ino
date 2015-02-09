@@ -58,7 +58,7 @@ void setup() {
 
 void loop() {
     if(softserial.available() && state==NORMAL_STATE) {
-        uint8_t degree  = softserial.read(); //incoming serial stream
+        uint8_t degree = softserial.read(); //incoming serial stream
         if (degree== 255) {
             state = COMMAND_STATE;
             Serial.println("Received COMMAND_STATE byte.");
@@ -92,24 +92,7 @@ void loop() {
             uint8_t infeed  = softserial.read(); //incoming serial stream
             if (infeed == SET_LIGHT_MODE) {
                 Serial.println("Received SET_LIGHT_MODE byte.");
-                while(!softserial.available()) {
-                    // Spin here while we wait for more bytes
-                }
-                red  = softserial.read();
-                Serial.print("r:");
-                Serial.print(red);
-                while(!softserial.available()) {
-                    // Spin here while we wait for more bytes
-                }
-                green  = softserial.read();
-                Serial.print(",g:");
-                Serial.print(green);
-                while(!softserial.available()) {
-                    // Spin here while we wait for more bytes
-                }
-                blue  = softserial.read();
-                Serial.print(",b:");
-                Serial.println(blue);
+                serialReadRGB(red, green, blue);
                 state=NORMAL_STATE;
             }
             else if(infeed == RAINBOW_MODE) {
@@ -141,6 +124,28 @@ void loop() {
             }
         }
     }
+}
+
+void serialReadRGB(uint8_t &red, uint8_t &green, uint8_t &blue)
+{
+    while(!softserial.available()) {
+        // Spin here while we wait for more bytes
+    }
+    red  = softserial.read();
+    Serial.print("r:");
+    Serial.print(red);
+    while(!softserial.available()) {
+        // Spin here while we wait for more bytes
+    }
+    green  = softserial.read();
+    Serial.print(",g:");
+    Serial.print(green);
+    while(!softserial.available()) {
+        // Spin here while we wait for more bytes
+    }
+    blue  = softserial.read();
+    Serial.print(",b:");
+    Serial.println(blue);
 }
 
 // "int *sensSmoothArray" passes an array to the function - the asterisk indicates the array name is a pointer
