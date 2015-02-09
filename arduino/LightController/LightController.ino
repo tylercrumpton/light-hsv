@@ -6,9 +6,13 @@
 #define LED_COUNT 300
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-uint8_t red =0;
-uint8_t green=255;
-uint8_t blue =0;
+uint8_t fgRed   = 255;
+uint8_t fgGreen = 255;
+uint8_t fgBlue  = 255;
+uint8_t bgRed   = 0;
+uint8_t bgGreen = 0;
+uint8_t bgBlue  = 0;
+
 
 typedef enum {
     NORMAL_STATE,
@@ -71,14 +75,14 @@ void loop() {
             if(degree>degreeold) {
                 jump= ((degree - degreeold)/10) +1;
                 for(int i= degreeold; i <= degree; i+=jump) {
-                    colorSeg(strip.Color(red,green,blue),  i, 5);
+                    colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, 5);
                 }
             }
             
             if(degree<degreeold) {
                 jump= ((degreeold -degree)/10) +1;
                 for(int i= degreeold; i >= degree; i-=jump) {
-                    colorSeg(strip.Color(red,green,blue),  i, 5);
+                    colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, 5);
                 }
             }
             
@@ -92,7 +96,7 @@ void loop() {
             uint8_t infeed  = softserial.read(); //incoming serial stream
             if (infeed == SET_LIGHT_MODE) {
                 Serial.println("Received SET_LIGHT_MODE byte.");
-                serialReadRGB(red, green, blue);
+                serialReadRGB(fgRed, fgGreen, fgBlue);
                 state=NORMAL_STATE;
             }
             else if(infeed == RAINBOW_MODE) {
@@ -108,6 +112,8 @@ void loop() {
             else if(infeed == TEAM_MODE) {
                 // TODO: Add Team Mode
                 Serial.println("Received TEAM_MODE byte.");
+                serialReadRGB(fgRed, fgGreen, fgBlue);
+                serialReadRGB(bgRed, bgGreen, bgBlue);
                 Serial.println("Returning to NORMAL_STATE.");
                 state=NORMAL_STATE;
             }
@@ -202,15 +208,19 @@ void turnoff() {
 }
 
 //short segment of moving color
-void colorSeg(uint32_t color, uint8_t location, uint32_t seg) {
+void colorSeg(uint32_t fgColor, uint32_t bgColor, uint8_t location, uint32_t seg) {
 
-    for(int n=oldlocation; n<oldlocation+seg; n++) {
-        strip.setPixelColor(n, strip.Color(0,0,0));
+    for(int n=0; n<oldlocation+seg; n++) {
+        strip.setPixelColor(n, bgColor);
         //strip2.setPixelColor(n, strip.Color(0,0,0));
     }
     for(uint16_t i=location; i<location+seg; i++) {
-        strip.setPixelColor(i, color);
+        strip.setPixelColor(i, fgColor);
         //strip2.setPixelColor(i, color);
+    }
+    for(int n=location+seg; n<LED_COUNT; n++) {
+        strip.setPixelColor(n, bgColor);
+        //strip2.setPixelColor(n, strip.Color(0,0,0));
     }
     strip.show();
     //for(uint16_t i=location; i<location+seg; i++) {
