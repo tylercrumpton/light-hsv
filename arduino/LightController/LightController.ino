@@ -14,6 +14,7 @@ uint8_t bgGreen = 0;
 uint8_t bgBlue  = 0;
 
 int NORMAL_SEG_LENGTH = 5;
+int NORMAL_BLUR_STEPS = 3;
 
 typedef enum {
     NORMAL_STATE,
@@ -28,7 +29,6 @@ const uint8_t GLITTER_MODE   = 0x04;
 
 int jump=0;
 uint8_t degreeold=0;
-uint8_t oldlocation=0; 
 #define SensorPin1      0
 #define filterSamples   3              // filterSamples should  be an odd number, no smaller than 3
 int sensSmoothArray1 [filterSamples];   // array for holding raw sensor values for sensor1 
@@ -209,26 +209,36 @@ void turnoff() {
 }
 
 //short segment of moving color
-void colorSeg(uint32_t fgColor, uint32_t bgColor, uint8_t location, uint32_t seg) {
-
-    for(int n=0; n<oldlocation+seg; n++) {
+void colorSeg(uint32_t fgColor, uint32_t bgColor, uint8_t location, uint32_t length) {
+    // Set all of the pixels up to the start of the blue to the background color:
+    for(int n=0; n<location; n++) {
         strip.setPixelColor(n, bgColor);
-        //strip2.setPixelColor(n, strip.Color(0,0,0));
     }
-    for(uint16_t i=location; i<location+seg; i++) {
+    // Blur a number of pixels up to the start of the segment (and on the downside):
+    int blueDiff = (fgColor & 0xFF) - (bgColor & 0xFF);
+    int greenDiff = (fgColor>>8 & 0xFF) - ((bgColor>>8) & 0xFF);
+    int redDiff = (fgColor>>16 & 0xFF) - ((bgColor>>16) & 0xFF);
+    for(int i=0; i<NORMAL_BLUR_STEPS; i++) {
+        int blurRed = redDiff * (i + 1) / (NORMAL_BLUR_STEPS + 1);
+        blurRed += (bgColor>>16) & 0xFF;
+        int blurGreen = greenDiff * (i + 1) / (NORMAL_BLUR_STEPS + 1);
+        blurGreen += (bgColor>>8) & 0xFF;
+        int blurBlue = blueDiff * (i + 1) / (NORMAL_BLUR_STEPS + 1);
+        blurBlue += bgColor & 0xFF;
+        uint32_t blurColor = strip.Color(blurRed, blurGreen, blurBlue);
+        strip.setPixelColor(location + i, blurColor);
+        strip.setPixelColor(location + NORMAL_BLUR_STEPS + length + NORMAL_BLUR_STEPS - i - 1, blurColor);
+    }
+    // Set the color of the segement pixels:
+    for(uint16_t i=location+NORMAL_BLUR_STEPS; i<location+NORMAL_BLUR_STEPS+length; i++) {
         strip.setPixelColor(i, fgColor);
-        //strip2.setPixelColor(i, color);
     }
-    for(int n=location+seg; n<LED_COUNT; n++) {
+    // Fill the rest of the strip with background:
+    for(int n=location+NORMAL_BLUR_STEPS+length+NORMAL_BLUR_STEPS; n<LED_COUNT; n++) {
         strip.setPixelColor(n, bgColor);
-        //strip2.setPixelColor(n, strip.Color(0,0,0));
     }
     strip.show();
-    //for(uint16_t i=location; i<location+seg; i++) {
-    //  }
-    //strip2.show();
 
-    oldlocation=location;
 }
 
 void rainbow(uint8_t wait) {
