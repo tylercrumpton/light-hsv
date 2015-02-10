@@ -13,6 +13,7 @@ uint8_t bgRed   = 0;
 uint8_t bgGreen = 0;
 uint8_t bgBlue  = 0;
 
+int NORMAL_SEG_LENGTH = 5;
 
 typedef enum {
     NORMAL_STATE,
@@ -75,14 +76,14 @@ void loop() {
             if(degree>degreeold) {
                 jump= ((degree - degreeold)/10) +1;
                 for(int i= degreeold; i <= degree; i+=jump) {
-                    colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, 5);
+                    colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, NORMAL_SEG_LENGTH);
                 }
             }
             
             if(degree<degreeold) {
                 jump= ((degreeold -degree)/10) +1;
                 for(int i= degreeold; i >= degree; i-=jump) {
-                    colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, 5);
+                    colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, NORMAL_SEG_LENGTH);
                 }
             }
             
