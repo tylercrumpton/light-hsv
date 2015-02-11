@@ -18,7 +18,8 @@ int NORMAL_BLUR_STEPS = 3;
 
 typedef enum {
     NORMAL_STATE,
-    COMMAND_STATE
+    COMMAND_STATE,
+    RAINBOW_STATE
 } state_t;
 state_t state = NORMAL_STATE;
 
@@ -62,7 +63,7 @@ void setup() {
 }
 
 void loop() {
-    if(softserial.available() && state==NORMAL_STATE) {
+    if(softserial.available()) {
         uint8_t degree = softserial.read(); //incoming serial stream
         if (degree== 255) {
             state = COMMAND_STATE;
@@ -89,8 +90,34 @@ void loop() {
             
             degreeold=degree;
         }
-        
-        if(state==COMMAND_STATE) {
+        else if(state==RAINBOW_STATE) {
+            degree=(degree/2);
+            rawData1 = degree;                       // read sensor 1
+            degree = digitalSmooth(rawData1, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
+
+            if(degree>degreeold) {
+                jump= ((degree - degreeold)/10) +1;
+                for(int d= degreeold; d <= degree; d+=jump) {
+                    for(int i=0; i<strip.numPixels(); i++) {
+                        strip.setPixelColor(i, Wheel((i+d) & 255));
+                    }
+                    strip.show();
+                }
+            }
+            
+            if(degree<degreeold) {
+                jump= ((degreeold -degree)/10) +1;
+                for(int d= degreeold; d >= degree; d-=jump) {
+                    for(int i=0; i<strip.numPixels(); i++) {
+                        strip.setPixelColor(i, Wheel((i+d) & 255));
+                    }
+                    strip.show();
+                }
+            }
+            
+            degreeold=degree;
+        }
+        else if(state==COMMAND_STATE) {
             while(!softserial.available()) {
                 // Spin here while we wait for more bytes
             }
@@ -102,13 +129,8 @@ void loop() {
             }
             else if(infeed == RAINBOW_MODE) {
                 Serial.println("Received RAINBOW_MODE byte.");
-                rainbow(10);
-                turnoff();
-                softserial.flush();
-                strip.show();
-                //strip2.show();
-                Serial.println("Returning to NORMAL_STATE.");
-                state=NORMAL_STATE;
+                Serial.println("Entering RAINBOW_STATE.");
+                state=RAINBOW_STATE;
             }
             else if(infeed == TEAM_MODE) {
                 // TODO: Add Team Mode
