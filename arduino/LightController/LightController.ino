@@ -14,7 +14,7 @@ uint8_t bgGreen = 0;
 uint8_t bgBlue  = 0;
 
 int NORMAL_SEG_LENGTH = 5;
-int NORMAL_BLUR_STEPS = 3;
+int NORMAL_BLUR_STEPS = 7;
 
 typedef enum {
     NORMAL_STATE,
