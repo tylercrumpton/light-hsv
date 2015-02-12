@@ -29,9 +29,19 @@ module.exports = {
   // regex to search, snappy function to call, args of snappy script
   searches : [
     { regex: /rainbow/gi, action: 'enterRainbowMode', args: null},
-    { regex: /Roll Tide/gi, action: 'enterTeamMode', args: [ "red", "white"] },
+    { regex: /Roll Tide/gi, action: 'enterTeamMode', args: [ "white", "red"] },
     { regex: /War Eagle/gi, action: 'enterTeamMode', args: [ "orange", "blue"] },
-    { regex: /fire/gi, action: 'enterGlitterMode', args: [ "red"] },
+    { regex: /Hail State/gi, action: 'enterTeamMode', args: [ "white", "maroon"] },
+    { regex: /gig ('|(th))?em/gi, action: 'enterTeamMode', args: [ "white", "maroon"] },
+    { regex: /dawgs|silver britches/gi, action: 'enterTeamMode', args: [ "black", "red"] },
+    { regex: /hotty toddy/gi, action: 'enterTeamMode', args: [ "blue", "red"] },
+    { regex: /pig/gi, action: 'enterTeamMode', args: [ "black", "red"] },
+    { regex: /anchor/gi, action: 'enterTeamMode', args: [ "black", "yellow"] },
+    { regex: /geaux tigers/gi, action: 'enterTeamMode', args: [ "purple", "yellow"] },
+    { regex: /vols/gi, action: 'enterTeamMode', args: [ "white", "orange"] },
+    { regex: /go big blue/gi, action: 'enterTeamMode', args: [ "white", "blue"] },
+    { regex: /gators|gata/gi, action: 'enterTeamMode', args: [ "blue", "orange"] },
+    { regex: /fire|adele/gi, action: 'enterGlitterMode', args: [ "red"] },
     { regex: /([^A-z]|^)blue([^A-z]|$)/gi, action: 'setLightColor', args: [ "blue"] },
     { regex: /([^A-z]|^)cyan([^A-z]|$)/gi, action: 'setLightColor', args: [ "cyan"] },
     { regex: /([^A-z]|^)green([^A-z]|$)/gi, action: 'setLightColor', args: [ "green"] },
@@ -50,6 +60,8 @@ module.exports = {
       red     : 'ff0000',
       white   : 'ffffff',
       yellow  : 'ffff00',
+      maroon  : '800000',
+      black   : '000000',
   },
 
 
