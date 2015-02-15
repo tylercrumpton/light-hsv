@@ -16,10 +16,10 @@ var twit = new twitter({
     access_token_secret : config.twitter.access_token_secret
 });
 
-twit.stream('statuses/filter', {track: 'netflix'}, function(stream) {
+twit.stream('statuses/filter', {track: config.default_search }, function(stream) {
   stream.on('data', function(data) {
     // search for hashtag or mention
-    if ( data.text.match(/[@#]netflix/gi) ){
+    if ( data.text.match(config.default_filter) ){
       parseData(data);
       storeData(data);
     }
