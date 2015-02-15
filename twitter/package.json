@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "lodash": "^2.4.1",
+    "mongojs": "^0.18.1",
     "twitter": "^0.2.12",
     "zerorpc": "^0.9.3"
   },

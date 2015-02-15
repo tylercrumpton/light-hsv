@@ -1,10 +1,27 @@
 module.exports = {
 
-  default_search: 'netflix',
-  default_filter: /[@#]netflix/gi,
-  node_address: '123456',
+  // Snap node mac
+  node_address : '123456',
+
+  // zerorpc configs
+  zrpc : {
+    host    : '127.0.0.1',
+    port    : '4242'
+  },
+
+  // mongodb configs
+  mongo : {
+    host : '127.0.0.1',
+    port : '27017',
+    db   : 'netflix',
+    col  : 'twitter'
+  },
 
   twitter : {
+    // twitter filter search
+    search              : 'netflix',
+    // filter befre other searchs
+    filter              : /[@#]netflix/gi,
     consumer_key        : '',
     consumer_secret     : '',
     access_token_key    : '',
@@ -36,7 +53,5 @@ module.exports = {
       white   : 'ffffff',
       yellow  : 'ffff00',
   },
-
-
 };
 
