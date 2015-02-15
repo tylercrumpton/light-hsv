@@ -28,6 +28,19 @@ exports.exec = function(action, color){
     args.push(rgb.g);
     args.push(rgb.b);
   }
+  args.push(reply); // rpc needs callback function
+
   client.invoke.apply(client, args);
 };
 
+function reply(error, res, more){
+  if(error) {
+    console.error(error);
+  }
+  else {
+    console.log("UPDATE:", res);
+  }
+  if(!more) {
+    console.log("Done.");
+  }
+}
