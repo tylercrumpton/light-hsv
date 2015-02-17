@@ -11,17 +11,21 @@ module.exports = {
 
   // mongodb configs
   mongo : {
-    host : '127.0.0.1',
-    port : '27017',
-    db   : 'netflix',
-    col  : 'twitter'
+    enable : true, 
+    host   : '127.0.0.1',
+    port   : '27017',
+    db     : 'netflix',
+    col    : 'twitter'
   },
 
   twitter : {
     // twitter filter search
     search              : 'netflix',
+
     // filter befre other searchs
     filter              : /[@#]netflix/gi,
+
+    // OAuth Keys
     consumer_key        : '',
     consumer_secret     : '',
     access_token_key    : '',
