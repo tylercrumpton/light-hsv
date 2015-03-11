@@ -1,7 +1,7 @@
 var _         = require('lodash');
 var twitter   = require('twitter');
 var snaplight = require("./snaplight.js");
-var mongo     = require("./mongo.js");
+//var mongo     = require("./mongo.js");
 var config    = require('./config');
 
 
@@ -16,8 +16,9 @@ twit.stream('statuses/filter', {track: config.twitter.search }, function(stream)
   stream.on('data', function(data) {
     // filter for hashtag or mention
     if ( data.text.match(config.twitter.filter) ){
+      console.log(data.user.screen_name+": "+data.text);
       parseData(data);
-      if (config.mongo.enable ) { mongo.storeData(data); } 
+      //if (config.mongo.enable ) { mongo.storeData(data); } 
     }
   });
 });

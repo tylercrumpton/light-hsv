@@ -28,6 +28,8 @@ exports.exec = function(action, color){
     args.push(rgb.g);
     args.push(rgb.b);
   }
+  console.log("ARGS:", args);
+
   args.push(reply); // rpc needs callback function
 
   client.invoke.apply(client, args);
@@ -41,6 +43,6 @@ function reply(error, res, more){
     console.log("UPDATE:", res);
   }
   if(!more) {
-    console.log("Done.");
+    console.log("No more.");
   }
 }
