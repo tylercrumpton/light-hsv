@@ -20,10 +20,10 @@ module.exports = {
 
   twitter : {
     // twitter filter search
-    search              : 'netflix',
+    search              : 'lighthsv',
 
     // filter befre other searchs
-    filter              : /[@#]netflix/gi,
+    filter              : /[@#]lighthsv/gi,
 
     // OAuth Keys
     consumer_key        : '',
@@ -34,8 +34,8 @@ module.exports = {
 
   // regex to search, snappy function to call, args of snappy script
   searches : [
-    { regex: /rainbow/gi, action: 'enterRainbowMode', args: null},
-    { regex: /Roll Tide/gi, action: 'enterTeamMode', args: [ "red", "white"] },
+    { regex: /rainbow/gi, action: 'enterRainbowMode', args: [] },
+    { regex: /Roll Tide/gi, action: 'enterTeamMode', args: [ "white", "red"] },
     { regex: /War Eagle/gi, action: 'enterTeamMode', args: [ "orange", "blue"] },
     { regex: /fire/gi, action: 'enterGlitterMode', args: [ "red"] },
     { regex: /([^A-z]|^)blue([^A-z]|$)/gi, action: 'setLightColor', args: [ "blue"] },
@@ -45,7 +45,7 @@ module.exports = {
     { regex: /([^A-z]|^)red([^A-z]|$)/gi, action: 'setLightColor', args: [ "red"] },
     { regex: /([^A-z]|^)white([^A-z]|$)/gi, action: 'setLightColor', args: [ "white"] },
     { regex: /([^A-z]|^)yellow([^A-z]|$)/gi, action: 'setLightColor', args: [ "yellow"] },
-    { regex: /netflix/gi, action: 'somefunc', args: [ "red", "white"] },
+//    { regex: /netflix/gi, action: 'somefunc', args: [ "red", "white"] },
   ],
 
   defaultColors : { 
@@ -53,6 +53,7 @@ module.exports = {
       cyan    : '00ffff',
       green   : '00ff00',
       magenta : 'ff00ff',
+      orange  : 'ff4000',
       red     : 'ff0000',
       white   : 'ffffff',
       yellow  : 'ffff00',
