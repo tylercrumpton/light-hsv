@@ -125,6 +125,9 @@ void loop() {
             if (infeed == SET_LIGHT_MODE) {
                 Serial.println("Received SET_LIGHT_MODE byte.");
                 serialReadRGB(fgRed, fgGreen, fgBlue);
+                bgRed   = 0;
+                bgGreen = 0;
+                bgBlue  = 0;
                 state=NORMAL_STATE;
             }
             else if(infeed == RAINBOW_MODE) {
