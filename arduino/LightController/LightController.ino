@@ -29,12 +29,12 @@ const uint8_t TEAM_MODE      = 0x03;
 const uint8_t GLITTER_MODE   = 0x04;
 
 int jump=0;
-uint8_t degreeold=0;
+uint8_t oldLightPos=0;
 #define SensorPin1      0
 #define filterSamples   3              // filterSamples should  be an odd number, no smaller than 3
 int sensSmoothArray1 [filterSamples];   // array for holding raw sensor values for sensor1 
 
-int rawData1, smoothData1;  // variables for sensor1 data
+int rawLightPos, smoothData1;  // variables for sensor1 data
 
 
 
@@ -70,34 +70,37 @@ void loop() {
             Serial.println("Received COMMAND_STATE byte.");
         }
         if(state==NORMAL_STATE) {
-            degree=(degree/2);
-            rawData1 = degree;                       // read sensor 1
-            degree = digitalSmooth(rawData1, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
+            
+            rawLightPos = degree * LED_COUNT / 254;  // read sensor 1
+            uint8_t newLightPos = digitalSmooth(rawLightPos, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
+            
+            Serial.print(degree);
+            Serial.print(" -> ");
+            Serial.print(newLightPos);
 
-            if(degree>degreeold) {
-                jump= ((degree - degreeold)/10) +1;
-                for(int i= degreeold; i <= degree; i+=jump) {
+            if(newLightPos > oldLightPos) {
+                jump = ((newLightPos - oldLightPos)/10) + 1;
+                for(int i=oldLightPos; i <= newLightPos; i+=jump) {
                     colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, NORMAL_SEG_LENGTH);
                 }
             }
             
-            if(degree<degreeold) {
-                jump= ((degreeold -degree)/10) +1;
-                for(int i= degreeold; i >= degree; i-=jump) {
+            if(newLightPos < oldLightPos) {
+                jump = ((oldLightPos - newLightPos)/10) +1;
+                for(int i=newLightPos; i >= newLightPos; i-=jump) {
                     colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, NORMAL_SEG_LENGTH);
                 }
             }
             
-            degreeold=degree;
+            oldLightPos = newLightPos;
         }
         else if(state==RAINBOW_STATE) {
-            degree=(degree/2);
-            rawData1 = degree;                       // read sensor 1
-            degree = digitalSmooth(rawData1, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
+            rawLightPos = degree;                       // read sensor 1
+            uint8_t newLightPos = digitalSmooth(rawLightPos, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
 
-            if(degree>degreeold) {
-                jump= ((degree - degreeold)/10) +1;
-                for(int d= degreeold; d <= degree; d+=jump) {
+            if(newLightPos > oldLightPos) {
+                jump = ((newLightPos - oldLightPos)/10) + 1;
+                for(int d=oldLightPos; d <= newLightPos; d+=jump) {
                     for(int i=0; i<strip.numPixels(); i++) {
                         strip.setPixelColor(i, Wheel((i+d) & 255));
                     }
@@ -105,9 +108,9 @@ void loop() {
                 }
             }
             
-            if(degree<degreeold) {
-                jump= ((degreeold -degree)/10) +1;
-                for(int d= degreeold; d >= degree; d-=jump) {
+            if(newLightPos < oldLightPos) {
+                jump = ((oldLightPos - newLightPos)/10) +1;
+                for(int d=oldLightPos; d >= newLightPos; d-=jump) {
                     for(int i=0; i<strip.numPixels(); i++) {
                         strip.setPixelColor(i, Wheel((i+d) & 255));
                     }
@@ -115,7 +118,7 @@ void loop() {
                 }
             }
             
-            degreeold=degree;
+            oldLightPos = newLightPos;
         }
         else if(state==COMMAND_STATE) {
             while(!softserial.available()) {
@@ -238,6 +241,7 @@ void colorSeg(uint32_t fgColor, uint32_t bgColor, uint8_t location, uint32_t len
     // Set all of the pixels up to the start of the blue to the background color:
     for(int n=0; n<location; n++) {
         strip.setPixelColor(n, bgColor);
+        strip.setPixelColor(n+150, bgColor);
     }
     // Blur a number of pixels up to the start of the segment (and on the downside):
     int blueDiff = (fgColor & 0xFF) - (bgColor & 0xFF);
