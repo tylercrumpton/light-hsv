@@ -29,6 +29,8 @@ function parseData(data){
   _.forEach(config.searches, function(re) { 
     if ( re.regex.test(data.text) ){
       snaplight.exec(re.action, re.args);
+      setTimeout(snaplight.exec, 1000, re.action, re.args);
+      setTimeout(snaplight.exec, 2000, re.action, re.args);
       return false;
     }
   });
