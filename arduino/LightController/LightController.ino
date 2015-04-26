@@ -76,7 +76,7 @@ void loop() {
             
             Serial.print(degree);
             Serial.print(" -> ");
-            Serial.print(newLightPos);
+            Serial.println(newLightPos);
 
             if(newLightPos > oldLightPos) {
                 jump = ((newLightPos - oldLightPos)/10) + 1;
