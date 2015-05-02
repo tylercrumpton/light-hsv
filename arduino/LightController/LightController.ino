@@ -28,13 +28,12 @@ const uint8_t RAINBOW_MODE   = 0x02;
 const uint8_t TEAM_MODE      = 0x03;
 const uint8_t GLITTER_MODE   = 0x04;
 
-int jump=0;
-uint8_t oldLightPos=0;
+long oldLightPos=0;
 #define SensorPin1      0
 #define filterSamples   3              // filterSamples should  be an odd number, no smaller than 3
 int sensSmoothArray1 [filterSamples];   // array for holding raw sensor values for sensor1 
 
-int rawLightPos, smoothData1;  // variables for sensor1 data
+int smoothData1;  // variables for sensor1 data
 
 
 
@@ -63,6 +62,7 @@ void setup() {
 }
 
 void loop() {
+  
     if(softserial.available()) {
         uint8_t degree = softserial.read(); //incoming serial stream
         if (degree== 255) {
@@ -71,23 +71,24 @@ void loop() {
         }
         if(state==NORMAL_STATE) {
             
-            rawLightPos = degree * LED_COUNT / 254;  // read sensor 1
-            uint8_t newLightPos = digitalSmooth(rawLightPos, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
+            long rawLightPos = long(degree) * LED_COUNT / 254.;  // read sensor 1
+            int newLightPos = int(rawLightPos);
+            //uint8_t newLightPos = digitalSmooth(rawLightPos, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
             
             Serial.print(degree);
             Serial.print(" -> ");
             Serial.println(newLightPos);
 
             if(newLightPos > oldLightPos) {
-                jump = ((newLightPos - oldLightPos)/10) + 1;
+                int jump = ((newLightPos - oldLightPos)/10) + 1;
                 for(int i=oldLightPos; i <= newLightPos; i+=jump) {
                     colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, NORMAL_SEG_LENGTH);
                 }
             }
             
             if(newLightPos < oldLightPos) {
-                jump = ((oldLightPos - newLightPos)/10) +1;
-                for(int i=newLightPos; i >= newLightPos; i-=jump) {
+                int jump = ((oldLightPos - newLightPos)/10) +1;
+                for(int i=oldLightPos; i >= newLightPos; i-=jump) {
                     colorSeg(strip.Color(fgRed,fgGreen,fgBlue), strip.Color(bgRed, bgGreen, bgBlue),  i, NORMAL_SEG_LENGTH);
                 }
             }
@@ -95,11 +96,11 @@ void loop() {
             oldLightPos = newLightPos;
         }
         else if(state==RAINBOW_STATE) {
-            rawLightPos = degree;                       // read sensor 1
+            int rawLightPos = degree;                       // read sensor 1
             uint8_t newLightPos = digitalSmooth(rawLightPos, sensSmoothArray1);  // every sensor you use with digitalSmooth needs its own array
 
             if(newLightPos > oldLightPos) {
-                jump = ((newLightPos - oldLightPos)/10) + 1;
+                int jump = ((newLightPos - oldLightPos)/10) + 1;
                 for(int d=oldLightPos; d <= newLightPos; d+=jump) {
                     for(int i=0; i<strip.numPixels(); i++) {
                         strip.setPixelColor(i, Wheel((i+d) & 255));
@@ -109,7 +110,7 @@ void loop() {
             }
             
             if(newLightPos < oldLightPos) {
-                jump = ((oldLightPos - newLightPos)/10) +1;
+                int jump = ((oldLightPos - newLightPos)/10) +1;
                 for(int d=oldLightPos; d >= newLightPos; d-=jump) {
                     for(int i=0; i<strip.numPixels(); i++) {
                         strip.setPixelColor(i, Wheel((i+d) & 255));
@@ -237,7 +238,7 @@ void turnoff() {
 }
 
 //short segment of moving color
-void colorSeg(uint32_t fgColor, uint32_t bgColor, uint8_t location, uint32_t length) {
+void colorSeg(uint32_t fgColor, uint32_t bgColor, uint16_t location, uint32_t length) {
     // Set all of the pixels up to the start of the blue to the background color:
     for(int n=0; n<location; n++) {
         strip.setPixelColor(n, bgColor);
