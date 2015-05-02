@@ -52,8 +52,11 @@ def init():
     prev = readData(PWR_MGMT_2, 1)
     writeData(PWR_MGMT_2, prev | STBY_XG | STBY_YG| STBY_ZG) # Disable gyro
     
+    enable_send_angle(True)
+    
 @setHook(HOOK_100MS)
 def pollAccel():
+    global do_send_angle
     # Read the Z-acceleration value to get angle:
     val = readData(ACCEL_ZOUT_H, 2)
     # Note: The value is from [-32768,32767] for [-2g,2g]
@@ -69,8 +72,12 @@ def pollAccel():
     angle = (accel_z - MIN_ACCEL) / ACCEL_STEP
     
     # Send out the angle:
-    mcastRpc(1, 3, 'reportAngle', 'swing', angle)
+    if do_send_angle:
+        mcastRpc(1, 3, 'reportAngle', 'swing', angle)
     
+def enable_send_angle(do_enable):
+    global do_send_angle
+    do_send_angle = do_enable
 
 def writeData(registerAddress, data):
     slaveAddress = MPU6050_ADDRESS
