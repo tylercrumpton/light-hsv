@@ -32,9 +32,12 @@ STBY_YG      = 0x02 # Y-axis gyro standby
 STBY_ZG      = 0x01 # Z-axis gyro standby
 
 # Parameters
-MIN_ACCEL = 11000
-MAX_ACCEL = 20000
+MIN_ACCEL = 16000
+MAX_ACCEL = 18000
 ACCEL_STEP = (MAX_ACCEL-MIN_ACCEL)/255
+
+MAX_TIMING = 1
+timing = MAX_TIMING
 
 def status():
     status = getI2cResult()
@@ -56,28 +59,44 @@ def init():
     
 @setHook(HOOK_100MS)
 def pollAccel():
-    global do_send_angle
-    # Read the Z-acceleration value to get angle:
-    val = readData(ACCEL_ZOUT_H, 2)
-    # Note: The value is from [-32768,32767] for [-2g,2g]
-    accel_z = ord(val[0]) << 8 | ord(val[1])
-    # If the reading is less than the minimum, cap it:
-    if accel_z < MIN_ACCEL:
-        accel_z = MIN_ACCEL
-    # If the reading is above the maximum, cap it too:
-    elif accel_z >  MAX_ACCEL:
-        accel_z = MAX_ACCEL
-    
-    # Calculate the angle, where min-to-max is 0-255:
-    angle = (accel_z - MIN_ACCEL) / ACCEL_STEP
-    
-    # Send out the angle:
-    if do_send_angle:
-        mcastRpc(1, 3, 'reportAngle', 'swing', angle)
+    global do_send_angle, do_send_accel, timing
+    if not timing < 1:
+        timing -= 1
+    else:
+        timing = MAX_TIMING
+        # Read the Z-acceleration value to get angle:
+        val = readData(ACCEL_ZOUT_H, 2)
+        # Note: The value is from [-32768,32767] for [-2g,2g]
+        accel_z = ord(val[0]) << 8 | ord(val[1])
+        # If the reading is less than the minimum, cap it:
+        if accel_z < MIN_ACCEL:
+            accel_z = MIN_ACCEL
+        # If the reading is above the maximum, cap it too:
+        elif accel_z >  MAX_ACCEL:
+            accel_z = MAX_ACCEL
+        
+        # Calculate the angle, where min-to-max is 0-255:
+        angle = (accel_z - MIN_ACCEL) / ACCEL_STEP
+        
+        # Cap angle to 0-254
+        if angle > 254:
+            angle = 254
+        if angle < 1:
+            angle = 1
+        
+        # Send out the angle:
+        if do_send_angle:
+            mcastRpc(1, 3, 'reportAngle', 'swing', angle)
+        elif do_send_accel:
+            mcastRpc(1, 3, 'reportAngle', 'swing', accel_z)
     
 def enable_send_angle(do_enable):
     global do_send_angle
     do_send_angle = do_enable
+    
+def enable_send_accel(do_enable):
+    global do_send_accel
+    do_send_accel = do_enable
 
 def writeData(registerAddress, data):
     slaveAddress = MPU6050_ADDRESS
